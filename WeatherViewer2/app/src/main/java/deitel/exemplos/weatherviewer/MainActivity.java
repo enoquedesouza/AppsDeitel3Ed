@@ -8,6 +8,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.view.View;
@@ -37,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
     private List<Weather> weatherList = new ArrayList<>();
     private WeatherArrayAdapter weatherArrayAdapter;
+    private ArrayAdapter<Weather> array;
     private ListView weatherListView;
 
 
@@ -50,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
         weatherListView = (ListView) findViewById(R.id.weatherListview);
         weatherArrayAdapter = new WeatherArrayAdapter(this, weatherList);
+        array = new ArrayAdapter<Weather>(this, R.layout.list_item);
         weatherListView.setAdapter(weatherArrayAdapter);
 
 
@@ -62,7 +65,6 @@ public class MainActivity extends AppCompatActivity {
 
                 EditText locationEditText = (EditText) findViewById(R.id.locationEditText);
                 URL url = createUrl(locationEditText.getText().toString());
-
                 if(url != null){
 
                     dismissKeyboard(locationEditText);
@@ -90,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
 
         try{
             String urlString = baseUrl + URLEncoder.encode(city, "UTF-8") +
-                    "&units=imperial&cnt=7&APPID=" + apiKey; //Minah chave de api não permite carrregar os dados para 16 dias
+                    "&units=imperial&cnt=15&APPID=" + apiKey; //Minah chave de api não permite carrregar os dados para 16 dias
                                                             //pois é a versão gratuita, então deixei o padrão 7 dias.
 
             return new URL(urlString);
@@ -122,6 +124,7 @@ public class MainActivity extends AppCompatActivity {
 
                     StringBuilder builder = new StringBuilder();
 
+
                     try(BufferedReader reader = new BufferedReader(
                            new InputStreamReader(connection.getInputStream()))){
 
@@ -129,17 +132,22 @@ public class MainActivity extends AppCompatActivity {
 
                         while((line = reader.readLine()) != null){
 
+
                                 builder.append(line);
+
                         }
+
+                        JSONObject jsonObject = new JSONObject(builder.toString());
+                        return  jsonObject;
 
                     }catch(Exception e){
 
                         Snackbar.make(findViewById(R.id.coordinatorLayout),
                                 R.string.read_error, Snackbar.LENGTH_LONG).show();
-                        //e.printStackTrace();
+                        e.printStackTrace();
                     }
 
-                    return new JSONObject(builder.toString());
+
 
                 }else{
                     Snackbar.make(findViewById(R.id.coordinatorLayout),R.string.connect_error, Snackbar.LENGTH_LONG)
@@ -150,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
 
                 Snackbar.make(findViewById(R.id.coordinatorLayout), R.string.connect_error, Snackbar.LENGTH_LONG)
                         .show();
-                //e.printStackTrace();
+                e.printStackTrace();
 
             }finally {
 
@@ -162,18 +170,21 @@ public class MainActivity extends AppCompatActivity {
 
         protected void onPostExecute(JSONObject object){
 
+
             convertJSONtoArrayList(object);
             weatherArrayAdapter.notifyDataSetChanged();
             weatherListView.smoothScrollToPosition(0);
 
 
+
         }
     }
 
-    //Recupera as informações de um objeto JSON e as armazenas em um arraylista.
+    //Recupera as informações de um objeto JSON e as armazenas em um arraylist.
     private void convertJSONtoArrayList(JSONObject forecast){
 
         weatherList.clear();
+
 
         try{
 
@@ -183,21 +194,27 @@ public class MainActivity extends AppCompatActivity {
 
                 JSONObject day = list.getJSONObject(i);
 
-                JSONObject temperatures = day.getJSONObject("temp");
+
+                JSONObject temperatures = day.getJSONObject("main");
 
                 JSONObject weather = day.getJSONArray("weather").getJSONObject(0);
 
-                weatherList.add(new Weather(
+                Weather weather1 = new Weather(
 
                         day.getLong("dt"),
-                        temperatures.getDouble("min"),
-                        temperatures.getDouble("max"),
-                        day.getDouble("humidity"),
+                        temperatures.getDouble("temp_min"),
+                        temperatures.getDouble("temp_max"),
+                        temperatures.getInt("humidity"),
                         weather.getString("description"),
-                        weather.getString("icon")));
+                        weather.getString("icon"));
+
+                weatherList.add(weather1);
+
             }
 
+
         }catch (JSONException js){
+
 
             js.printStackTrace();
         }

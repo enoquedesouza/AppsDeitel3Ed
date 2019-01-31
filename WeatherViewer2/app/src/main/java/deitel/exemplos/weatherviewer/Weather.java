@@ -1,6 +1,8 @@
 package deitel.exemplos.weatherviewer;
 
 
+import android.support.design.widget.Snackbar;
+
 import java.text.FieldPosition;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
@@ -35,7 +37,7 @@ import java.util.TimeZone;
       * @param description é a descrição das condições climáticas
       * @param iconName é nome da imagem que representa as condições climáticas
       */
-      public Weather(long timeStamp, double minTemp, double maxTemp, double humidity,
+      public Weather(long timeStamp, double minTemp, double maxTemp, int humidity,
                      String description, String iconName){
 
        NumberFormat numberFormat = NumberFormat.getNumberInstance(); //Recupera uma instância da classe para formatação

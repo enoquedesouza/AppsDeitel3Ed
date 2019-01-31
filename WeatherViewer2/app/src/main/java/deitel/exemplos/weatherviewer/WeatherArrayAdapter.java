@@ -1,6 +1,7 @@
 package deitel.exemplos.weatherviewer;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.widget.ArrayAdapter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -56,9 +57,12 @@ public class WeatherArrayAdapter extends ArrayAdapter<Weather> {
     * ao ListView.
     *
     */
-    public WeatherArrayAdapter(Context context, List<Weather> forecast){
 
-        super(context, -1, forecast); //chama o construtor a superclasse
+    private Context context;
+    public WeatherArrayAdapter(Context context, List<Weather> lista){
+
+        super(context, -1, lista); //chama o construtor a superclasse
+        this.context = context;
 
     }
 
@@ -83,7 +87,7 @@ public class WeatherArrayAdapter extends ArrayAdapter<Weather> {
             viewHolder.lowTextView = (TextView) convertView.findViewById(R.id.lowTextView);
             viewHolder.hitTextView = (TextView) convertView.findViewById(R.id.hitTextView);
             viewHolder.humidityTextView = (TextView) convertView.findViewById(R.id.humidityTextView);
-
+            convertView.setTag(viewHolder);
 
         }else{
 
@@ -96,10 +100,11 @@ public class WeatherArrayAdapter extends ArrayAdapter<Weather> {
 
         }else{
 
-            new LoadImageTask(viewHolder.conditionImageView).execute(day.iconUrl);
+           new LoadImageTask(viewHolder.conditionImageView).execute(day.iconUrl);
         }
 
         Context context = getContext();
+
         viewHolder.dayTextView.setText(context.getString(R.string.day_description,
                                         day.dayOfWeek, day.description));
 
@@ -167,4 +172,5 @@ public class WeatherArrayAdapter extends ArrayAdapter<Weather> {
 
         }
     }
+
 }
